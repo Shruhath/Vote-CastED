@@ -24,6 +24,18 @@ export function CreateElection({ onBack }: CreateElectionProps) {
   
   const createElection = useMutation(api.elections.createElection);
 
+  // Validation function for gender quota
+  const validateGenderQuota = () => {
+    if (multiVote) {
+      const totalGenderVotes = minVotesMale + minVotesFemale;
+      if (totalGenderVotes !== totalVotesPerVoter) {
+        toast.error("Sum of male and female winners must equal total votes per voter.");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -35,6 +47,11 @@ export function CreateElection({ onBack }: CreateElectionProps) {
 
     if (!electionName || !className || !year || !branch || section === '' || !startDate || !endDate) {
       toast.error("Please fill in all election details before uploading student data");
+      return;
+    }
+
+    // Validate gender quota before proceeding
+    if (!validateGenderQuota()) {
       return;
     }
 
@@ -347,7 +364,7 @@ export function CreateElection({ onBack }: CreateElectionProps) {
                     type="datetime-local"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:ring-1 focus:ring-black outline-none transition-all"
                     required
                   />
                 </div>
@@ -373,49 +390,68 @@ export function CreateElection({ onBack }: CreateElectionProps) {
                 </div>
 
                 {multiVote && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ml-7">
-                    <div>
-                      <label htmlFor="totalVotes" className="block text-sm font-medium text-black mb-2">
-                        Total votes per voter
-                      </label>
-                      <input
-                        id="totalVotes"
-                        type="number"
-                        value={totalVotesPerVoter}
-                        onChange={(e) => setTotalVotesPerVoter(parseInt(e.target.value))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                        min="1"
-                        max="10"
-                      />
+                  <div className="ml-7">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <label htmlFor="totalVotes" className="block text-sm font-medium text-black mb-2">
+                          Total votes per voter
+                        </label>
+                        <input
+                          id="totalVotes"
+                          type="number"
+                          value={totalVotesPerVoter}
+                          onChange={(e) => setTotalVotesPerVoter(parseInt(e.target.value))}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                          min="1"
+                          max="10"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="minMale" className="block text-sm font-medium text-black mb-2">
+                          Male winners required
+                        </label>
+                        <input
+                          id="minMale"
+                          type="number"
+                          value={minVotesMale}
+                          onChange={(e) => setMinVotesMale(parseInt(e.target.value))}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                          min="0"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="minFemale" className="block text-sm font-medium text-black mb-2">
+                          Female winners required
+                        </label>
+                        <input
+                          id="minFemale"
+                          type="number"
+                          value={minVotesFemale}
+                          onChange={(e) => setMinVotesFemale(parseInt(e.target.value))}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                          min="0"
+                        />
+                      </div>
                     </div>
 
-                    <div>
-                      <label htmlFor="minMale" className="block text-sm font-medium text-black mb-2">
-                        Min votes for Male candidates
-                      </label>
-                      <input
-                        id="minMale"
-                        type="number"
-                        value={minVotesMale}
-                        onChange={(e) => setMinVotesMale(parseInt(e.target.value))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                        min="0"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="minFemale" className="block text-sm font-medium text-black mb-2">
-                        Min votes for Female candidates
-                      </label>
-                      <input
-                        id="minFemale"
-                        type="number"
-                        value={minVotesFemale}
-                        onChange={(e) => setMinVotesFemale(parseInt(e.target.value))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                        min="0"
-                      />
-                    </div>
+                    {/* Validation Warning */}
+                    {(minVotesMale + minVotesFemale) !== totalVotesPerVoter && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-red-800 text-sm font-medium">
+                            Warning: Male winners ({minVotesMale}) + Female winners ({minVotesFemale}) = {minVotesMale + minVotesFemale}, but total votes per voter is {totalVotesPerVoter}
+                          </span>
+                        </div>
+                        <p className="text-red-700 text-sm mt-1">
+                          The sum must equal the total votes per voter to proceed.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

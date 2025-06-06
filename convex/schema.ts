@@ -52,6 +52,13 @@ const applicationTables = {
     .index("by_voter", ["voterPhone"])
     .index("by_candidate", ["candidateRollNumber"]),
 
+  // New admin table for secure login
+  admins: defineTable({
+    username: v.string(),
+    password: v.string(),
+  })
+    .index("by_username", ["username"]),
+
   // Legacy tables for compatibility
   students: defineTable({
     rollNumber: v.string(),

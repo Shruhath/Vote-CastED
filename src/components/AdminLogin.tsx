@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { toast } from 'sonner';
 
 interface AdminLoginProps {
@@ -7,23 +9,42 @@ interface AdminLoginProps {
 }
 
 export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const createDefaultAdmin = useMutation(api.admin.createDefaultAdmin);
+  const authenticateAdmin = useQuery(
+    api.admin.authenticateAdmin,
+    username && password ? { username, password } : "skip"
+  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  useEffect(() => {
+    // Create default admin on component mount
+    createDefaultAdmin().catch(console.error);
+  }, [createDefaultAdmin]);
 
-    // Simple password check - in production, use proper authentication
-    if (password === 'admin123') {
+  useEffect(() => {
+    if (authenticateAdmin?.success) {
       localStorage.setItem('adminAuth', 'true');
       toast.success('Login successful!');
       onLogin();
-    } else {
-      toast.error('Invalid password');
+    } else if (authenticateAdmin?.success === false) {
+      toast.error(authenticateAdmin.message);
+      setIsLoading(false);
     }
+  }, [authenticateAdmin, onLogin]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    setIsLoading(false);
+    if (!username.trim() || !password.trim()) {
+      toast.error('Please enter both username and password');
+      return;
+    }
+
+    setIsLoading(true);
+    // The authentication will be handled by the useEffect above
   };
 
   return (
@@ -44,7 +65,7 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
               VC
             </div>
             <h1 className="text-2xl font-bold text-black">Admin Login</h1>
-            <p className="text-gray-600 mt-1">Enter your admin password</p>
+            <p className="text-gray-600 mt-1">Enter your admin credentials</p>
           </div>
         </div>
       </header>
@@ -54,8 +75,23 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
+                <label htmlFor="username" className="block text-sm font-medium text-black mb-2">
+                  Username
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                  placeholder="Enter username"
+                  required
+                />
+              </div>
+
+              <div>
                 <label htmlFor="password" className="block text-sm font-medium text-black mb-2">
-                  Admin Password
+                  Password
                 </label>
                 <input
                   id="password"
@@ -63,12 +99,9 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                  placeholder="Enter admin password"
+                  placeholder="Enter password"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Demo password: admin123
-                </p>
               </div>
 
               <button
