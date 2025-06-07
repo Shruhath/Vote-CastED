@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from 'convex/react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { api } from '../../convex/_generated/api';
 import { StudentPhoneAuth } from './StudentPhoneAuth';
 import { StudentVoting } from './StudentVoting';
@@ -10,6 +12,7 @@ export function VotingPage() {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   // Check if election exists
   const elections = useQuery(api.elections.getElections);
@@ -23,22 +26,60 @@ export function VotingPage() {
     }
   }, [electionId, navigate]);
 
+  useEffect(() => {
+    // Listen for Firebase auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('Firebase auth state changed:', user);
+      
+      if (user && user.phoneNumber) {
+        console.log('User authenticated with phone:', user.phoneNumber);
+        setPhoneNumber(user.phoneNumber);
+        setIsAuthenticated(true);
+      } else {
+        console.log('User not authenticated or no phone number');
+        setPhoneNumber(null);
+        setIsAuthenticated(false);
+      }
+      
+      setIsAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const handlePhoneAuth = (phone: string) => {
+    console.log('Phone auth completed:', phone);
     setPhoneNumber(phone);
     setIsAuthenticated(true);
   };
 
-  const handleLogout = () => {
-    setPhoneNumber(null);
-    setIsAuthenticated(false);
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      setPhoneNumber(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const handleBackToHome = () => {
-    // Force a hard navigation to home
-    window.location.href = '/';
+    navigate('/');
   };
 
-  // Loading state
+  // Loading state for auth
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state for elections
   if (elections === undefined) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -61,7 +102,7 @@ export function VotingPage() {
                 VC
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Vote Casted</h1>
+                <h1 className="text-xl font-bold text-black">Vote Casted</h1>
               </div>
             </div>
             <button
@@ -76,10 +117,9 @@ export function VotingPage() {
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">❌</div>
-            <h2 className="text-2xl font-bold text-white mb-4">Election Not Found</h2>
-            <p className="text-gray-200 mb-6">
+            <h2 className="text-2xl font-bold text-black mb-4">Election Not Found</h2>
+            <p className="text-gray-600 mb-6">
               The election with ID "{electionId}" could not be found or may have been removed.
-              If you you need to participate in an election, please enter it into url with /vote/--id--
             </p>
             <button
               onClick={handleBackToHome}
@@ -108,7 +148,7 @@ export function VotingPage() {
                 VC
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Vote Casted</h1>
+                <h1 className="text-xl font-bold text-black">Vote Casted</h1>
                 <p className="text-sm text-gray-600">{election.electionName}</p>
               </div>
             </div>
@@ -124,8 +164,8 @@ export function VotingPage() {
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">⏰</div>
-            <h2 className="text-2xl font-bold text-white mb-4">Election Unavailable</h2>
-            <p className="text-gray-200 mb-6">{statusMessage}</p>
+            <h2 className="text-2xl font-bold text-black mb-4">Election Unavailable</h2>
+            <p className="text-gray-600 mb-6">{statusMessage}</p>
             <button
               onClick={handleBackToHome}
               className="px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-lg"
@@ -142,10 +182,10 @@ export function VotingPage() {
   if (!isAuthenticated || !phoneNumber) {
     return (
       <StudentPhoneAuth 
-        onAuthenticated={handlePhoneAuth}
-        onBack={handleBackToHome}
+        onLogin={handlePhoneAuth}
         electionId={electionId!}
         electionName={election.electionName}
+        className={election.className}
       />
     );
   }

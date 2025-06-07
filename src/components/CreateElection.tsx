@@ -237,7 +237,7 @@ export function CreateElection({ onBack }: CreateElectionProps) {
         <div className="max-w-4xl mx-auto">
           <button
             onClick={onBack}
-            className="flex items-center text-white hover:text-gray-200 mb-4 transition-colors"
+            className="flex items-center text-black hover:text-gray-500 mb-4 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
@@ -245,8 +245,8 @@ export function CreateElection({ onBack }: CreateElectionProps) {
             Back to Dashboard
           </button>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Create New Election</h1>
-            <p className="text-gray-200 mt-1">Set up a new class representative election</p>
+            <h1 className="text-2xl font-bold text-black">Create New Election</h1>
+            <p className="text-gray-700 mt-1">Set up a new class representative election</p>
           </div>
         </div>
       </header>

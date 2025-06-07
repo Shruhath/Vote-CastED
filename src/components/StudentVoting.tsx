@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { api } from '../../convex/_generated/api';
 import { toast } from 'sonner';
 
@@ -12,11 +14,39 @@ interface StudentVotingProps {
 export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVotingProps) {
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string | null>(null);
   
-  const eligibility = useQuery(api.elections.checkStudentEligibility, { 
-    electionId, 
-    phoneNumber 
-  });
+  // Wait for Firebase auth to be ready
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('StudentVoting - Firebase auth state:', user);
+      
+      if (user && user.phoneNumber) {
+        console.log('StudentVoting - User verified with phone:', user.phoneNumber);
+        setVerifiedPhoneNumber(user.phoneNumber);
+        setIsAuthReady(true);
+      } else {
+        console.log('StudentVoting - No authenticated user');
+        setVerifiedPhoneNumber(null);
+        setIsAuthReady(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Use the verified phone number from Firebase, fallback to prop
+  const activePhoneNumber = verifiedPhoneNumber || phoneNumber;
+  
+  const eligibility = useQuery(
+    api.elections.checkStudentEligibility, 
+    isAuthReady && activePhoneNumber ? { 
+      electionId, 
+      phoneNumber: activePhoneNumber 
+    } : "skip"
+  );
+  
   const castVote = useMutation(api.voting.castVote);
   
   const candidates = useQuery(
@@ -26,9 +56,9 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
 
   const voterStatus = useQuery(
     api.voting.getVoterStatus,
-    eligibility?.eligible && eligibility.election ? { 
+    eligibility?.eligible && eligibility.election && activePhoneNumber ? { 
       electionId,
-      phoneNumber 
+      phoneNumber: activePhoneNumber 
     } : "skip"
   );
 
@@ -92,24 +122,39 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
   };
 
   const handleSubmitVote = async () => {
-    if (!validateVote() || !eligibility?.eligible || !eligibility.election) return;
+    if (!validateVote() || !eligibility?.eligible || !eligibility.election || !activePhoneNumber) return;
 
     setIsSubmitting(true);
     try {
+      console.log('Casting vote with phone number:', activePhoneNumber);
+      
       await castVote({
         electionId,
-        voterPhone: phoneNumber,
+        voterPhone: activePhoneNumber,
         candidateRollNumbers: selectedCandidates,
       });
       
       toast.success("Your vote has been cast successfully!");
       setSelectedCandidates([]);
     } catch (error: any) {
+      console.error('Error casting vote:', error);
       toast.error(error.message || "Failed to cast vote");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading while waiting for auth
+  if (!isAuthReady || !activePhoneNumber) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (eligibility === undefined) {
     return (
@@ -124,20 +169,20 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
 
   if (!eligibility.eligible) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <header className="bg-white border-b border-gray-200 px-4 py-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
                 VC
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Vote Casted</h1>
+                <h1 className="text-xl font-bold text-black">Vote Casted</h1>
               </div>
             </div>
             <button
               onClick={onLogout}
-              className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+              className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
             >
               Back to Login
             </button>
@@ -147,8 +192,8 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">❌</div>
-            <h2 className="text-2xl font-bold text-white mb-4">Not Eligible to Vote</h2>
-            <p className="text-gray-200 mb-6">{eligibility.message}</p>
+            <h2 className="text-2xl font-bold text-black mb-4">Not Eligible to Vote</h2>
+            <p className="text-gray-600 mb-6">{eligibility.message}</p>
             <button
               onClick={onLogout}
               className="px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-lg"
@@ -163,20 +208,20 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
 
   if (voterStatus?.hasVoted) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <header className="bg-white border-b border-gray-200 px-4 py-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
                 VC
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Vote Casted</h1>
+                <h1 className="text-xl font-bold text-black">Vote Casted</h1>
               </div>
             </div>
             <button
               onClick={onLogout}
-              className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+              className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
             >
               Exit
             </button>
@@ -186,8 +231,8 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">✅</div>
-            <h2 className="text-2xl font-bold text-white mb-4">Vote Successfully Cast</h2>
-            <p className="text-gray-200 mb-6">
+            <h2 className="text-2xl font-bold text-black mb-4">Vote Successfully Cast</h2>
+            <p className="text-gray-600 mb-6">
               Thank you for participating in the election. Your vote has been recorded.
             </p>
             <button
@@ -208,21 +253,21 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="bg-white border-b border-gray-200 px-4 py-6">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
               VC
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Vote Casted</h1>
-              <p className="text-sm text-gray-200">{formatElectionDisplay()}</p>
+              <h1 className="text-xl font-bold text-black">Vote Casted</h1>
+              <p className="text-sm text-gray-600">{formatElectionDisplay()}</p>
             </div>
           </div>
           <button
             onClick={onLogout}
-            className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+            className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
           >
             Logout
           </button>
@@ -232,18 +277,19 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
       <div className="flex-1 px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Election Info */}
-          <div className="bg-white/90 rounded-lg border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
             <h2 className="text-2xl font-bold text-black mb-2">
               {election.electionName || 'Class Representative Election'}
             </h2>
             <div className="text-gray-600 space-y-1">
               <p>Class: {formatElectionDisplay()}</p>
               <p>Welcome, {eligibility.student?.name} ({eligibility.student?.rollNumber})</p>
+              <p className="text-xs">Authenticated: {activePhoneNumber}</p>
             </div>
           </div>
 
           {/* Voting Instructions */}
-          <div className="bg-blue-50/90 border border-blue-200 rounded-lg p-6 mb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
             <h3 className="font-semibold text-blue-900 mb-3">📋 Voting Instructions</h3>
             {election.multiVote ? (
               <div className="text-sm text-blue-800 space-y-2">
@@ -263,7 +309,7 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
 
           {/* Vote Selection Summary */}
           {election.multiVote && (
-            <div className="bg-white/90 border border-gray-200 rounded-lg p-6 mb-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
               <h3 className="font-semibold text-black mb-4">
                 Your Selection: {selectedCandidates.length}/{election.totalVotesPerVoter}
               </h3>
@@ -287,7 +333,7 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
           )}
 
           {/* Candidates List */}
-          <div className="bg-white/90 rounded-lg border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
             <h3 className="text-lg font-semibold text-black mb-6">
               Candidates ({candidates.length})
             </h3>
@@ -311,9 +357,9 @@ export function StudentVoting({ electionId, phoneNumber, onLogout }: StudentVoti
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-lg mb-1">{candidate.name}</h4>
-                        <p className="text-sm opacity-75 mb-1">{candidate.rollNumber}</p>
-                        <p className="text-sm opacity-75">{candidate.gender}</p>
+                        <h4 className="font-semibold text-black mb-1">{candidate.name}</h4>
+                        <p className="text-black opacity- mb-1">{candidate.rollNumber}</p>
+                        <p className="text-black opacity-75">{candidate.gender}</p>
                       </div>
                       <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center ${
                         selectedCandidates.includes(candidate.rollNumber)

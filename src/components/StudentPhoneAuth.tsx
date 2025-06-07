@@ -111,19 +111,20 @@ export function StudentPhoneAuth({ electionId, onLogin, electionName, className 
     setIsLoading(true);
 
     try {
-      await confirmationResult.confirm(otp);
+      const result = await confirmationResult.confirm(otp);
       
-      // Format phone number for consistency
-      let formattedPhone = phoneNumber.replace(/\D/g, '');
-      if (formattedPhone.length === 10) {
-        formattedPhone = `+91${formattedPhone}`;
-      } else if (formattedPhone.length === 12 && formattedPhone.startsWith('91')) {
-        formattedPhone = `+${formattedPhone}`;
-      } else if (!formattedPhone.startsWith('+91')) {
-        formattedPhone = `+91${formattedPhone.slice(-10)}`;
+      // Get the phone number from the Firebase user
+      const firebaseUser = result.user;
+      const userPhoneNumber = firebaseUser.phoneNumber;
+      
+      if (!userPhoneNumber) {
+        throw new Error('Phone number not found in Firebase user');
       }
       
-      onLogin(formattedPhone);
+      console.log('Firebase user authenticated:', userPhoneNumber);
+      
+      // Pass the Firebase-verified phone number to the parent
+      onLogin(userPhoneNumber);
       toast.success('Phone number verified successfully!');
     } catch (error: any) {
       console.error('Error verifying OTP:', error);

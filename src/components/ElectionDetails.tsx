@@ -86,14 +86,14 @@ export function ElectionDetails({ electionId, onBack }: ElectionDetailsProps) {
         <div>
           <button
             onClick={onBack}
-            className="flex items-center text-black hover:text-gray-600 mb-2"
+            className="flex items-center text-white hover:text-gray-600 mb-2"
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Dashboard
           </button>
-          <h1 className="text-2xl font-bold text-black">
+          <h1 className="text-2xl font-bold text-white">
             Election: {formatElectionDisplay(electionId)}
           </h1>
           <p className="text-gray-200 mt-1">
@@ -133,7 +133,7 @@ export function ElectionDetails({ electionId, onBack }: ElectionDetailsProps) {
       </div>
 
       {/* Election Config */}
-      <div className="bg-white border border-black p-4">
+      <div className="bg-white border bg-opacity-85 border-black p-4">
         <h3 className="text-lg font-semibold text-black mb-2">Election Configuration</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
@@ -166,7 +166,7 @@ export function ElectionDetails({ electionId, onBack }: ElectionDetailsProps) {
             onClick={() => setActiveTab('all')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'all'
-                ? 'border-black text-black'
+                ? 'border-black text-white'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -176,7 +176,7 @@ export function ElectionDetails({ electionId, onBack }: ElectionDetailsProps) {
             onClick={() => setActiveTab('candidates')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'candidates'
-                ? 'border-black text-black'
+                ? 'border-black text-white'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
