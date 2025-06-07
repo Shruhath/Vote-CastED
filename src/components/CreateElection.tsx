@@ -232,283 +232,258 @@ export function CreateElection({ onBack }: CreateElectionProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
+        <div className="max-w-4xl mx-auto">
           <button
             onClick={onBack}
-            className="flex items-center text-gray-600 hover:text-black mb-4 transition-colors"
+            className="flex items-center text-white hover:text-gray-200 mb-4 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Dashboard
           </button>
-          <h1 className="text-3xl font-bold text-black">Create New Election</h1>
-          <p className="text-gray-600 mt-1">Set up a new election with student data upload</p>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-white">Create New Election</h1>
+            <p className="text-gray-200 mt-1">Set up a new class representative election</p>
+          </div>
         </div>
+      </header>
 
-        {/* Form */}
-        <div className="bg-white rounded-lg border border-gray-200 p-8">
-          <div className="space-y-8">
-            {/* Basic Election Details */}
-            <div>
-              <h2 className="text-xl font-semibold text-black mb-6">Election Details</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="electionName" className="block text-sm font-medium text-black mb-2">
-                    Election Name *
-                  </label>
-                  <input
-                    id="electionName"
-                    type="text"
-                    value={electionName}
-                    onChange={(e) => setElectionName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                    placeholder="e.g., Class Representative Election"
-                    required
-                  />
+      <div className="flex-1 px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/90 rounded-lg border border-gray-200 p-8">
+            <div className="space-y-8">
+              {/* Basic Election Details */}
+              <div>
+                <h2 className="text-xl font-semibold text-black mb-6">Election Details</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="electionName" className="block text-sm font-medium text-black mb-2">
+                      Election Name *
+                    </label>
+                    <input
+                      id="electionName"
+                      type="text"
+                      value={electionName}
+                      onChange={(e) => setElectionName(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                      placeholder="e.g., Class Representative Election"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="className" className="block text-sm font-medium text-black mb-2">
+                      Class Name *
+                    </label>
+                    <input
+                      id="className"
+                      type="text"
+                      value={className}
+                      onChange={(e) => setClassName(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                      placeholder="e.g., CSE-A, ECE-B"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="year" className="block text-sm font-medium text-black mb-2">
+                      Year *
+                    </label>
+                    <input
+                      id="year"
+                      type="number"
+                      value={year}
+                      onChange={(e) => setYear(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                      placeholder="24"
+                      min="20"
+                      max="30"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="branch" className="block text-sm font-medium text-black mb-2">
+                      Branch *
+                    </label>
+                    <select
+                      id="branch"
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                      required
+                    >
+                      <option value="">Select Branch</option>
+                      {branches.map((b) => (
+                        <option key={b.value} value={b.value}>
+                          {b.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="section" className="block text-sm font-medium text-black mb-2">
+                      Section (A=0, B=1, etc.) *
+                    </label>
+                    <input
+                      id="section"
+                      type="number"
+                      value={section}
+                      onChange={(e) => setSection(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                      placeholder="0"
+                      min="0"
+                      max="10"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="startDate" className="block text-sm font-medium text-black mb-2">
+                      Start Date & Time *
+                    </label>
+                    <input
+                      id="startDate"
+                      type="datetime-local"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="endDate" className="block text-sm font-medium text-black mb-2">
+                      End Date & Time *
+                    </label>
+                    <input
+                      id="endDate"
+                      type="datetime-local"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:ring-1 focus:ring-black outline-none transition-all"
+                      required
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div>
-                  <label htmlFor="className" className="block text-sm font-medium text-black mb-2">
-                    Class Name *
-                  </label>
-                  <input
-                    id="className"
-                    type="text"
-                    value={className}
-                    onChange={(e) => setClassName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                    placeholder="e.g., CSE-A, ECE-B"
-                    required
-                  />
+              {/* Voting Configuration */}
+              <div>
+                <h2 className="text-xl font-semibold text-black mb-6">Voting Configuration</h2>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center">
+                    <input
+                      id="multiVote"
+                      type="checkbox"
+                      checked={multiVote}
+                      onChange={(e) => setMultiVote(e.target.checked)}
+                      className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
+                    />
+                    <label htmlFor="multiVote" className="ml-2 block text-sm text-black">
+                      Enable multi-vote (allow voters to select multiple candidates)
+                    </label>
+                  </div>
+
+                  {multiVote && (
+                    <div className="ml-7">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                          <label htmlFor="totalVotes" className="block text-sm font-medium text-black mb-2">
+                            Total votes per voter
+                          </label>
+                          <input
+                            id="totalVotes"
+                            type="number"
+                            value={totalVotesPerVoter}
+                            onChange={(e) => setTotalVotesPerVoter(parseInt(e.target.value))}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                            min="1"
+                            max="10"
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="minMale" className="block text-sm font-medium text-black mb-2">
+                            Male winners required
+                          </label>
+                          <input
+                            id="minMale"
+                            type="number"
+                            value={minVotesMale}
+                            onChange={(e) => setMinVotesMale(parseInt(e.target.value))}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                            min="0"
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="minFemale" className="block text-sm font-medium text-black mb-2">
+                            Female winners required
+                          </label>
+                          <input
+                            id="minFemale"
+                            type="number"
+                            value={minVotesFemale}
+                            onChange={(e) => setMinVotesFemale(parseInt(e.target.value))}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                <div>
-                  <label htmlFor="year" className="block text-sm font-medium text-black mb-2">
-                    Year *
-                  </label>
+              {/* Student Data Upload */}
+              <div>
+                <h2 className="text-xl font-semibold text-black mb-6">Student Data</h2>
+                
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
                   <input
-                    id="year"
-                    type="number"
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                    placeholder="24"
-                    min="20"
-                    max="30"
-                    required
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv,.xlsx,.xls"
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                    className="hidden"
+                    id="file-upload"
                   />
-                </div>
-
-                <div>
-                  <label htmlFor="branch" className="block text-sm font-medium text-black mb-2">
-                    Branch *
-                  </label>
-                  <select
-                    id="branch"
-                    value={branch}
-                    onChange={(e) => setBranch(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                    required
+                  <label
+                    htmlFor="file-upload"
+                    className={`cursor-pointer ${isUploading ? 'cursor-not-allowed opacity-50' : ''}`}
                   >
-                    <option value="">Select Branch</option>
-                    {branches.map((b) => (
-                      <option key={b.value} value={b.value}>
-                        {b.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="section" className="block text-sm font-medium text-black mb-2">
-                    Section (A=0, B=1, etc.) *
-                  </label>
-                  <input
-                    id="section"
-                    type="number"
-                    value={section}
-                    onChange={(e) => setSection(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                    placeholder="0"
-                    min="0"
-                    max="10"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="startDate" className="block text-sm font-medium text-black mb-2">
-                    Start Date & Time *
-                  </label>
-                  <input
-                    id="startDate"
-                    type="datetime-local"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="endDate" className="block text-sm font-medium text-black mb-2">
-                    End Date & Time *
-                  </label>
-                  <input
-                    id="endDate"
-                    type="datetime-local"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:ring-1 focus:ring-black outline-none transition-all"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Voting Configuration */}
-            <div>
-              <h3 className="text-lg font-medium text-black mb-4">Voting Rules</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <input
-                    id="multiVote"
-                    type="checkbox"
-                    checked={multiVote}
-                    onChange={(e) => setMultiVote(e.target.checked)}
-                    className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                  />
-                  <label htmlFor="multiVote" className="text-sm text-black">
-                    Allow multiple votes per voter
-                  </label>
-                </div>
-
-                {multiVote && (
-                  <div className="ml-7">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div>
-                        <label htmlFor="totalVotes" className="block text-sm font-medium text-black mb-2">
-                          Total votes per voter
-                        </label>
-                        <input
-                          id="totalVotes"
-                          type="number"
-                          value={totalVotesPerVoter}
-                          onChange={(e) => setTotalVotesPerVoter(parseInt(e.target.value))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                          min="1"
-                          max="10"
-                        />
+                    <div className="space-y-4">
+                      <div className="text-gray-400">
+                        <svg className="mx-auto h-16 w-16" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       </div>
-
-                      <div>
-                        <label htmlFor="minMale" className="block text-sm font-medium text-black mb-2">
-                          Male winners required
-                        </label>
-                        <input
-                          id="minMale"
-                          type="number"
-                          value={minVotesMale}
-                          onChange={(e) => setMinVotesMale(parseInt(e.target.value))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                          min="0"
-                        />
+                      <div className="text-gray-600">
+                        {isUploading ? (
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
+                            <span>Creating Election...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="font-medium text-black text-lg">Upload Student Data & Create Election</span>
+                            <p className="text-sm mt-1">Click to upload CSV or Excel file</p>
+                          </>
+                        )}
                       </div>
-
-                      <div>
-                        <label htmlFor="minFemale" className="block text-sm font-medium text-black mb-2">
-                          Female winners required
-                        </label>
-                        <input
-                          id="minFemale"
-                          type="number"
-                          value={minVotesFemale}
-                          onChange={(e) => setMinVotesFemale(parseInt(e.target.value))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
-                          min="0"
-                        />
-                      </div>
+                      <div className="text-sm text-gray-400">CSV, XLSX, XLS files supported</div>
                     </div>
-
-                    {/* Validation Warning */}
-                    {(minVotesMale + minVotesFemale) !== totalVotesPerVoter && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div className="flex items-center">
-                          <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-red-800 text-sm font-medium">
-                            Warning: Male winners ({minVotesMale}) + Female winners ({minVotesFemale}) = {minVotesMale + minVotesFemale}, but total votes per voter is {totalVotesPerVoter}
-                          </span>
-                        </div>
-                        <p className="text-red-700 text-sm mt-1">
-                          The sum must equal the total votes per voter to proceed.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Student Data Upload */}
-            <div>
-              <h3 className="text-lg font-medium text-black mb-4">Student Data Upload</h3>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h4 className="font-medium text-blue-900 mb-2">CSV Format Requirements:</h4>
-                <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
-                  <li><strong>Roll Number</strong> (required): Student ID or roll number</li>
-                  <li><strong>Name</strong> (required): Student's full name</li>
-                  <li><strong>Phone</strong> (required): 10-digit mobile number for OTP</li>
-                  <li><strong>Gender</strong> (optional): Male, Female, or Other</li>
-                </ul>
-                <p className="text-sm text-blue-700 mt-2">
-                  Example: rollNumber,name,phone,gender
-                </p>
-              </div>
-
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,.xlsx,.xls"
-                  onChange={handleFileUpload}
-                  disabled={isUploading}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className={`cursor-pointer ${isUploading ? 'cursor-not-allowed opacity-50' : ''}`}
-                >
-                  <div className="space-y-4">
-                    <div className="text-gray-400">
-                      <svg className="mx-auto h-16 w-16" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                    <div className="text-gray-600">
-                      {isUploading ? (
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-                          <span>Creating Election...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <span className="font-medium text-black text-lg">Upload Student Data & Create Election</span>
-                          <p className="text-sm mt-1">Click to upload CSV or Excel file</p>
-                        </>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-400">CSV, XLSX, XLS files supported</div>
-                  </div>
-                </label>
+                  </label>
+                </div>
               </div>
             </div>
           </div>

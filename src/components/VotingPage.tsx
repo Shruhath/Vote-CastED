@@ -52,20 +52,20 @@ export function VotingPage() {
   // Election not found
   if (!election) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-4 py-6">
+      <div className="min-h-screen flex flex-col">
+        <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
                 VC
               </div>
               <div>
-                <h1 className="text-xl font-bold text-black">Vote Casted</h1>
+                <h1 className="text-xl font-bold text-white">Vote Casted</h1>
               </div>
             </div>
             <button
               onClick={handleBackToHome}
-              className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+              className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
             >
               Back to Home
             </button>
@@ -75,8 +75,8 @@ export function VotingPage() {
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">❌</div>
-            <h2 className="text-2xl font-bold text-black mb-4">Election Not Found</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-white mb-4">Election Not Found</h2>
+            <p className="text-gray-200 mb-6">
               The election with ID "{electionId}" could not be found or may have been removed.
             </p>
             <button
@@ -98,21 +98,21 @@ export function VotingPage() {
       : 'This election has ended.';
 
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-4 py-6">
+      <div className="min-h-screen flex flex-col">
+        <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
                 VC
               </div>
               <div>
-                <h1 className="text-xl font-bold text-black">Vote Casted</h1>
+                <h1 className="text-xl font-bold text-white">Vote Casted</h1>
                 <p className="text-sm text-gray-600">{election.electionName}</p>
               </div>
             </div>
             <button
               onClick={handleBackToHome}
-              className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+              className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
             >
               Back to Home
             </button>
@@ -122,8 +122,8 @@ export function VotingPage() {
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">⏰</div>
-            <h2 className="text-2xl font-bold text-black mb-4">Election Unavailable</h2>
-            <p className="text-gray-600 mb-6">{statusMessage}</p>
+            <h2 className="text-2xl font-bold text-white mb-4">Election Unavailable</h2>
+            <p className="text-gray-200 mb-6">{statusMessage}</p>
             <button
               onClick={handleBackToHome}
               className="px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-lg"

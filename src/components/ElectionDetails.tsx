@@ -96,7 +96,7 @@ export function ElectionDetails({ electionId, onBack }: ElectionDetailsProps) {
           <h1 className="text-2xl font-bold text-black">
             Election: {formatElectionDisplay(electionId)}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-200 mt-1">
             {students.length} students • {candidates.length} candidates • Status: {election.status}
           </p>
           <p className="text-sm text-gray-500">

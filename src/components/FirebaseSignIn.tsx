@@ -39,9 +39,9 @@ export function FirebaseSignIn({ logoUrl }: FirebaseSignInProps) {
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-black mb-4">Vote Casted</h1>
-            <p className="text-xl text-black">University Election Management System</p>
-            <p className="text-gray-600 mt-2">Sign in as admin to manage elections</p>
+            <h1 className="text-4xl font-bold text-white mb-4">Vote Casted</h1>
+            <p className="text-xl text-white">University Election Management System</p>
+            <p className="text-gray-200 mt-2">Sign in as admin to manage elections</p>
           </div>
 
           <div className="space-y-4">

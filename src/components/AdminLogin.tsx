@@ -48,8 +48,8 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 px-4 py-6">
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
         <div className="max-w-md mx-auto">
           <button
             onClick={onBack}
