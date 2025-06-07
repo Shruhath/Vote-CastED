@@ -34,7 +34,8 @@ export function VotingPage() {
   };
 
   const handleBackToHome = () => {
-    navigate('/');
+    // Force a hard navigation to home
+    window.location.href = '/';
   };
 
   // Loading state
@@ -78,6 +79,7 @@ export function VotingPage() {
             <h2 className="text-2xl font-bold text-white mb-4">Election Not Found</h2>
             <p className="text-gray-200 mb-6">
               The election with ID "{electionId}" could not be found or may have been removed.
+              If you you need to participate in an election, please enter it into url with /vote/--id--
             </p>
             <button
               onClick={handleBackToHome}
