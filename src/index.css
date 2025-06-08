@@ -61,10 +61,10 @@ body::before {
   @apply w-full px-4 py-3 bg-white/90 border border-black focus:border-black focus:ring-1 focus:ring-black outline-none transition-all;
 }
 
-/* Update text colors for better visibility */
+/* Update text colors for better visibility
 h1, h2, h3, h4, h5, h6 {
   @apply text-white;
-}
+} */
 
 p {
   @apply text-black;

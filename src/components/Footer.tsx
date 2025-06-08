@@ -4,7 +4,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="w-full py-6 mt-auto bg-gradient-to-r from-white via-gray-100 to-white border-t shadow-inner">
       <div className="container mx-auto px-4 text-center">
-        <p className="text-sm text-gray-700">
+        <p className="text-[14.5px] text-gray-700">
         Developed <span className="text-red-500 font-semibold"></span> by{' '}
           <a
             href="https://ushodayanetworks.com"

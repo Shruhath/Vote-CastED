@@ -98,7 +98,7 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
 
   if (voterAccess === undefined || election === undefined || candidates === undefined) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
           <p className="text-gray-600">Loading voting interface...</p>
@@ -109,8 +109,8 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
 
   if (!voterAccess.hasAccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-4 py-6">
+      <div className="min-h-screen flex flex-col">
+        <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
@@ -122,7 +122,7 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
             </div>
             <button
               onClick={onLogout}
-              className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+              className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
             >
               Back to Login
             </button>
@@ -132,8 +132,8 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">❌</div>
-            <h2 className="text-2xl font-bold text-black mb-4">Not Eligible to Vote</h2>
-            <p className="text-gray-600 mb-6">{voterAccess.message}</p>
+            <h2 className="text-2xl font-bold text-white mb-4">Not Eligible to Vote</h2>
+            <p className="text-gray-200 mb-6">{voterAccess.message}</p>
             <button
               onClick={onLogout}
               className="px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-lg"
@@ -148,8 +148,8 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
 
   if (voterAccess.student?.hasVoted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-4 py-6">
+      <div className="min-h-screen flex flex-col">
+        <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
@@ -161,7 +161,7 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
             </div>
             <button
               onClick={onLogout}
-              className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+              className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
             >
               Exit
             </button>
@@ -171,8 +171,8 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-6">✅</div>
-            <h2 className="text-2xl font-bold text-black mb-4">Vote Successfully Cast</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-white mb-4">Vote Successfully Cast</h2>
+            <p className="text-gray-200 mb-6">
               Thank you for participating in the election. Your vote has been recorded.
             </p>
             <button
@@ -193,8 +193,8 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 px-4 py-6">
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white/90 border-b border-gray-200 px-4 py-6">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 bg-black text-white flex items-center justify-center text-sm font-bold rounded-lg">
@@ -202,12 +202,12 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
             </div>
             <div>
               <h1 className="text-xl font-bold text-black">Vote Casted</h1>
-              <p className="text-sm text-gray-600">{formatElectionDisplay()}</p>
+              <p className="text-sm text-gray-700">{formatElectionDisplay()}</p>
             </div>
           </div>
           <button
             onClick={onLogout}
-            className="px-4 py-2 bg-white text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
+            className="px-4 py-2 bg-white/90 text-black border border-gray-300 font-medium hover:bg-gray-50 transition-colors rounded-lg"
           >
             Logout
           </button>
@@ -217,7 +217,7 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
       <div className="flex-1 px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Election Info */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <div className="bg-white/90 rounded-lg border border-gray-200 p-6 mb-6">
             <h2 className="text-2xl font-bold text-black mb-2">
               {election?.electionName || 'Class Representative Election'}
             </h2>
@@ -228,7 +228,7 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
           </div>
 
           {/* Voting Instructions */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+          <div className="bg-blue-50/90 border border-blue-200 rounded-lg p-6 mb-6">
             <h3 className="font-semibold text-blue-900 mb-3">📋 Voting Instructions</h3>
             {election?.multiVote ? (
               <div className="text-sm text-blue-800 space-y-2">
@@ -248,7 +248,7 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
 
           {/* Vote Selection Summary */}
           {election?.multiVote && (
-            <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+            <div className="bg-white/90 border border-gray-200 rounded-lg p-6 mb-6">
               <h3 className="font-semibold text-black mb-4">
                 Your Selection: {selectedCandidates.length}/{election?.totalVotesPerVoter}
               </h3>
@@ -272,7 +272,7 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
           )}
 
           {/* Candidates List */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <div className="bg-white/90 rounded-lg border border-gray-200 p-6 mb-6">
             <h3 className="text-lg font-semibold text-black mb-6">
               Candidates ({candidates.length})
             </h3>
@@ -291,14 +291,22 @@ export function StudentVoting({ electionId, email, onLogout }: StudentVotingProp
                     className={`p-6 border-2 cursor-pointer transition-all rounded-lg ${
                       selectedCandidates.includes(candidate.rollNumber)
                         ? 'border-black bg-black text-white'
-                        : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow-md'
+                        : 'border-gray-200 bg-white text-black hover:border-gray-400 hover:shadow-md'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <h4 className="font-semibold text-lg mb-1">{candidate.name}</h4>
-                        <p className="text-sm opacity-75 mb-1">{candidate.rollNumber}</p>
-                        <p className="text-sm opacity-75">{candidate.gender}</p>
+                        <p className={`text-sm mb-1 ${
+                          selectedCandidates.includes(candidate.rollNumber)
+                            ? 'text-white/75'
+                            : 'text-gray-600'
+                        }`}>{candidate.rollNumber}</p>
+                        <p className={`text-sm ${
+                          selectedCandidates.includes(candidate.rollNumber)
+                            ? 'text-white/75'
+                            : 'text-gray-600'
+                        }`}>{candidate.gender}</p>
                       </div>
                       <div className={`w-6 h-6 border-2 rounded-full flex items-center justify-center ${
                         selectedCandidates.includes(candidate.rollNumber)

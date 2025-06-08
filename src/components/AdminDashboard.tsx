@@ -39,13 +39,13 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-300 bg-opacity-5">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-black">Vote Casted Admin</h1>
-            <p className="text-gray-600 mt-1">Manage college elections and student voting</p>
+            <h1 className="text-3xl font-bold text-White">Vote Casted Admin</h1>
+            <p className="text-gray-400 mt-1">Manage college elections and student voting</p>
           </div>
           <div className="flex space-x-4">
             <button
@@ -64,7 +64,7 @@ export function AdminDashboard() {
         </div>
 
         {/* Elections Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 bg-opacity-85">
           <h2 className="text-xl font-semibold text-black mb-6">All Elections</h2>
           {elections === undefined ? (
             <div className="flex justify-center py-12">
