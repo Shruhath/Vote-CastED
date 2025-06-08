@@ -38,10 +38,10 @@ export const createDemoElection = mutation({
 
     // Add demo students
     const demoStudents = [
-      { rollNumber: "001", name: "Alice Johnson", phone: "+919876543210", gender: "Female", isCandidate: true },
-      { rollNumber: "002", name: "Bob Smith", phone: "+919876543211", gender: "Male", isCandidate: true },
-      { rollNumber: "003", name: "Charlie Brown", phone: "+919876543212", gender: "Male", isCandidate: false },
-      { rollNumber: "004", name: "Diana Prince", phone: "+919876543213", gender: "Female", isCandidate: false },
+      { rollNumber: "001", name: "Alice Johnson", email: "alice.johnson@student.amrita.edu", gender: "Female", isCandidate: true },
+      { rollNumber: "002", name: "Bob Smith", email: "bob.smith@student.amrita.edu", gender: "Male", isCandidate: true },
+      { rollNumber: "003", name: "Charlie Brown", email: "charlie.brown@student.amrita.edu", gender: "Male", isCandidate: false },
+      { rollNumber: "004", name: "Diana Prince", email: "diana.prince@student.amrita.edu", gender: "Female", isCandidate: false },
     ];
 
     for (const student of demoStudents) {
@@ -49,7 +49,7 @@ export const createDemoElection = mutation({
         electionId: "DEMO01",
         rollNumber: student.rollNumber,
         name: student.name,
-        phone: student.phone,
+        email: student.email,
         gender: student.gender,
         isCandidate: student.isCandidate,
         hasVoted: false,

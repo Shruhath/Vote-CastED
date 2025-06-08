@@ -39,13 +39,13 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Vote Casted Admin</h1>
-            <p className="text-gray-200 mt-1">Manage college elections and student voting</p>
+            <h1 className="text-3xl font-bold text-black">Vote Casted Admin</h1>
+            <p className="text-gray-600 mt-1">Manage college elections and student voting</p>
           </div>
           <div className="flex space-x-4">
             <button

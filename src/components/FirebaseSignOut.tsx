@@ -1,10 +1,10 @@
-import { logOut } from '../lib/firebase';
+import { auth } from '../lib/firebase';
 import { toast } from 'sonner';
 
 export function FirebaseSignOut() {
   const handleSignOut = async () => {
     try {
-      await logOut();
+      await auth.signOut();
       toast.success('Successfully signed out');
     } catch (error) {
       console.error('Sign out error:', error);

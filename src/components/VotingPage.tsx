@@ -4,13 +4,13 @@ import { useQuery } from 'convex/react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { api } from '../../convex/_generated/api';
-import { StudentPhoneAuth } from './StudentPhoneAuth';
+import { StudentEmailAuth } from './StudentEmailAuth';
 import { StudentVoting } from './StudentVoting';
 
 export function VotingPage() {
   const { electionId } = useParams<{ electionId: string }>();
   const navigate = useNavigate();
-  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
@@ -31,13 +31,13 @@ export function VotingPage() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log('Firebase auth state changed:', user);
       
-      if (user && user.phoneNumber) {
-        console.log('User authenticated with phone:', user.phoneNumber);
-        setPhoneNumber(user.phoneNumber);
+      if (user && user.email) {
+        console.log('User authenticated with email:', user.email);
+        setEmail(user.email);
         setIsAuthenticated(true);
       } else {
-        console.log('User not authenticated or no phone number');
-        setPhoneNumber(null);
+        console.log('User not authenticated or no email');
+        setEmail(null);
         setIsAuthenticated(false);
       }
       
@@ -47,16 +47,16 @@ export function VotingPage() {
     return () => unsubscribe();
   }, []);
 
-  const handlePhoneAuth = (phone: string) => {
-    console.log('Phone auth completed:', phone);
-    setPhoneNumber(phone);
+  const handleEmailAuth = (userEmail: string) => {
+    console.log('Email auth completed:', userEmail);
+    setEmail(userEmail);
     setIsAuthenticated(true);
   };
 
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      setPhoneNumber(null);
+      setEmail(null);
       setIsAuthenticated(false);
     } catch (error) {
       console.error('Error signing out:', error);
@@ -178,11 +178,11 @@ export function VotingPage() {
     );
   }
 
-  // Show phone authentication if not authenticated
-  if (!isAuthenticated || !phoneNumber) {
+  // Show email authentication if not authenticated
+  if (!isAuthenticated || !email) {
     return (
-      <StudentPhoneAuth 
-        onLogin={handlePhoneAuth}
+      <StudentEmailAuth 
+        onLogin={handleEmailAuth}
         electionId={electionId!}
         electionName={election.electionName}
         className={election.className}
@@ -194,7 +194,7 @@ export function VotingPage() {
   return (
     <StudentVoting
       electionId={electionId!}
-      phoneNumber={phoneNumber}
+      email={email}
       onLogout={handleLogout}
     />
   );

@@ -1,6 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,25 +11,22 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// Enable phone auth settings
-auth.useDeviceLanguage();
-auth.settings.appVerificationDisabledForTesting = true; // Only for development
-
-export const analytics = getAnalytics(app);
-
+// Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
-export const signInWithGoogle = () => {
-  return signInWithPopup(auth, googleProvider);
-};
+// Microsoft Auth Provider
+const microsoftProvider = new OAuthProvider('microsoft.com');
+microsoftProvider.setCustomParameters({
+  tenant: 'common', // You can specify your tenant ID here if needed
+  prompt: 'select_account'
+});
 
-export const logOut = () => {
-  return signOut(auth);
-};
-
-export const onAuthStateChange = (callback: (user: User | null) => void) => {
-  return onAuthStateChanged(auth, callback);
-};
+export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
+export const signInWithMicrosoft = () => signInWithPopup(auth, microsoftProvider);

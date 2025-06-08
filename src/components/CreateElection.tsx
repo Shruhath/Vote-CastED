@@ -68,15 +68,15 @@ export function CreateElection({ onBack }: CreateElectionProps) {
 
       const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
       
-      // Find column indices - more flexible matching
+      // Find column indices - updated for email instead of phone
       const rollNumberIndex = headers.findIndex(h => 
         h.includes('roll') || h.includes('number') || h.includes('id')
       );
       const nameIndex = headers.findIndex(h => 
         h.includes('name') || h.includes('student')
       );
-      const phoneIndex = headers.findIndex(h => 
-        h.includes('phone') || h.includes('mobile') || h.includes('contact')
+      const emailIndex = headers.findIndex(h => 
+        h.includes('email') || h.includes('mail')
       );
       const genderIndex = headers.findIndex(h => 
         h.includes('gender') || h.includes('sex')
@@ -90,8 +90,8 @@ export function CreateElection({ onBack }: CreateElectionProps) {
         toast.error("CSV must contain a 'Name' column");
         return;
       }
-      if (phoneIndex === -1) {
-        toast.error("CSV must contain a 'Phone' or 'Mobile' column");
+      if (emailIndex === -1) {
+        toast.error("CSV must contain an 'Email' column");
         return;
       }
 
@@ -120,37 +120,32 @@ export function CreateElection({ onBack }: CreateElectionProps) {
         }
         values.push(current.trim().replace(/"/g, ''));
         
-        if (values.length <= Math.max(rollNumberIndex, nameIndex, phoneIndex)) {
+        if (values.length <= Math.max(rollNumberIndex, nameIndex, emailIndex)) {
           errors.push(`Row ${i + 1}: Insufficient columns`);
           continue;
         }
 
         const rollNumber = values[rollNumberIndex]?.trim();
         const name = values[nameIndex]?.trim();
-        const phone = values[phoneIndex]?.trim();
+        const email = values[emailIndex]?.trim();
         const gender = genderIndex !== -1 ? values[genderIndex]?.trim() || 'Not specified' : 'Not specified';
 
-        if (!rollNumber || !name || !phone) {
-          errors.push(`Row ${i + 1}: Missing required data (roll number, name, or phone)`);
+        if (!rollNumber || !name || !email) {
+          errors.push(`Row ${i + 1}: Missing required data (roll number, name, or email)`);
           continue;
         }
 
-        // Validate phone number format
-        const cleanPhone = phone.replace(/\D/g, '');
-        if (cleanPhone.length < 10) {
-          errors.push(`Row ${i + 1}: Invalid phone number format`);
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          errors.push(`Row ${i + 1}: Invalid email format`);
           continue;
         }
-
-        // Format phone number
-        const formattedPhone = cleanPhone.length === 10 ? `+91${cleanPhone}` : 
-                              cleanPhone.startsWith('91') ? `+${cleanPhone}` : 
-                              `+91${cleanPhone.slice(-10)}`;
 
         studentsData.push({
           rollNumber,
           name,
-          phone: formattedPhone,
+          email: email.toLowerCase(), // Normalize email to lowercase
           gender: gender === 'M' || gender === 'Male' || gender === 'MALE' ? 'Male' :
                   gender === 'F' || gender === 'Female' || gender === 'FEMALE' ? 'Female' : 
                   gender || 'Not specified',
@@ -447,6 +442,17 @@ export function CreateElection({ onBack }: CreateElectionProps) {
               <div>
                 <h2 className="text-xl font-semibold text-black mb-6">Student Data</h2>
                 
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <h4 className="font-medium text-blue-800 mb-2">📧 Email-Based Authentication</h4>
+                  <p className="text-sm text-blue-700">
+                    Students will now authenticate using Microsoft login with their institutional email addresses. 
+                    Make sure your CSV contains an "Email" column with valid email addresses.
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Required columns: Roll Number, Name, Email, Gender (optional)
+                  </p>
+                </div>
+                
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
                   <input
                     ref={fileInputRef}
@@ -476,7 +482,7 @@ export function CreateElection({ onBack }: CreateElectionProps) {
                         ) : (
                           <>
                             <span className="font-medium text-black text-lg">Upload Student Data & Create Election</span>
-                            <p className="text-sm mt-1">Click to upload CSV or Excel file</p>
+                            <p className="text-sm mt-1">Click to upload CSV or Excel file with email addresses</p>
                           </>
                         )}
                       </div>

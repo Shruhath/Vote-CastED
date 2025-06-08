@@ -33,23 +33,26 @@ const applicationTables = {
     electionId: v.string(),
     rollNumber: v.string(),
     name: v.string(),
-    phone: v.string(),
+    email: v.optional(v.string()), // Made optional for migration
+    phone: v.optional(v.string()), // Keep for backward compatibility
     gender: v.string(),
     isCandidate: v.boolean(),
     hasVoted: v.boolean(),
   })
     .index("by_election", ["electionId"])
-    .index("by_phone", ["phone"])
-    .index("by_roll_number", ["rollNumber"]),
+    .index("by_email", ["email"]) // Changed from phone to email
+    .index("by_roll_number", ["rollNumber"])
+    .index("by_election_and_email", ["electionId", "email"]), // New compound index
 
   votes: defineTable({
     electionId: v.string(),
-    voterPhone: v.string(),
+    voterEmail: v.optional(v.string()), // Made optional for migration
+    voterPhone: v.optional(v.string()), // Keep for backward compatibility
     candidateRollNumber: v.string(),
     timestamp: v.number(),
   })
     .index("by_election", ["electionId"])
-    .index("by_voter", ["voterPhone"])
+    .index("by_voter", ["voterEmail"]) // Changed from voterPhone to voterEmail
     .index("by_candidate", ["candidateRollNumber"]),
 
   // New admin table for secure login

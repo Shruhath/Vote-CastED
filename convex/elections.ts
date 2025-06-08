@@ -1,16 +1,10 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
-import { Doc, Id } from "./_generated/dataModel";
-
-// Generate a unique election ID
-function generateElectionId(): string {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
-}
+import { mutation, query } from "./_generated/server";
 
 export const createElection = mutation({
   args: {
     electionName: v.string(),
-    className: v.string(),
+    className: v.optional(v.string()),
     year: v.number(),
     branch: v.string(),
     section: v.number(),
@@ -19,7 +13,7 @@ export const createElection = mutation({
     studentsData: v.array(v.object({
       rollNumber: v.string(),
       name: v.string(),
-      phone: v.string(),
+      email: v.string(),
       gender: v.string(),
     })),
     electionConfig: v.object({
@@ -32,46 +26,70 @@ export const createElection = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const electionId = generateElectionId();
+    // Generate shorter, more readable election ID (6 characters)
+    const generateShortId = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    };
+
+    let electionId = generateShortId();
     
-    // Create the election record
-    const election = await ctx.db.insert("elections", {
+    // Ensure uniqueness
+    let existing = await ctx.db
+      .query("elections")
+      .withIndex("by_election_id", (q) => q.eq("electionId", electionId))
+      .unique();
+    
+    while (existing) {
+      electionId = generateShortId();
+      existing = await ctx.db
+        .query("elections")
+        .withIndex("by_election_id", (q) => q.eq("electionId", electionId))
+        .unique();
+    }
+    
+    // Create election record with "created" status (not auto-started)
+    await ctx.db.insert("elections", {
       electionId,
       electionName: args.electionName,
       className: args.className,
-      campus: "cb", // Default values for compatibility
-      stream: "sc",
-      programType: "u",
+      campus: "default",
+      stream: "default",
+      programType: "default",
       programLength: 4,
       branch: args.branch,
       year: args.year,
       section: args.section,
       startTime: args.startDate,
       endTime: args.endDate,
-      status: "created",
+      status: "created", // Start as created, not open
       studentCount: args.studentsData.length,
-      candidateCount: 0,
+      candidateCount: 0, // No candidates initially
       multiVote: args.electionConfig.multiVote,
       totalVotesPerVoter: args.electionConfig.totalVotesPerVoter,
       minVotesPerGender: args.electionConfig.minVotesPerGender,
     });
 
-    // Add students to the election
+    // Insert students as NON-candidates initially
     let studentsProcessed = 0;
-    for (const studentData of args.studentsData) {
+    for (const student of args.studentsData) {
       try {
         await ctx.db.insert("electionStudents", {
           electionId,
-          rollNumber: studentData.rollNumber,
-          name: studentData.name,
-          phone: studentData.phone,
-          gender: studentData.gender,
-          isCandidate: false,
+          rollNumber: student.rollNumber,
+          name: student.name,
+          email: student.email.toLowerCase(),
+          gender: student.gender,
+          isCandidate: false, // Changed: Students are NOT candidates by default
           hasVoted: false,
         });
         studentsProcessed++;
       } catch (error) {
-        console.error(`Failed to add student ${studentData.rollNumber}:`, error);
+        console.error(`Failed to insert student ${student.rollNumber}:`, error);
       }
     }
 
@@ -85,7 +103,25 @@ export const createElection = mutation({
 export const getElections = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("elections").order("desc").collect();
+    const elections = await ctx.db.query("elections").collect();
+    
+    // Don't auto-update status in queries - keep manual control
+    return elections;
+  },
+});
+
+export const getElectionById = query({
+  args: { electionId: v.string() },
+  handler: async (ctx, args) => {
+    const election = await ctx.db
+      .query("elections")
+      .withIndex("by_election_id", (q) => q.eq("electionId", args.electionId))
+      .unique();
+    
+    if (!election) return null;
+    
+    // Don't auto-update status - keep manual control
+    return election;
   },
 });
 
@@ -99,98 +135,55 @@ export const getElectionStudents = query({
   },
 });
 
-export const toggleElectionCandidate = mutation({
-  args: {
-    studentId: v.id("electionStudents"),
-    isCandidate: v.boolean(),
-  },
-  handler: async (ctx, args) => {
-    const student = await ctx.db.get(args.studentId);
-    if (!student) {
-      throw new Error("Student not found");
-    }
-
-    await ctx.db.patch(args.studentId, {
-      isCandidate: args.isCandidate,
-    });
-
-    // Update election candidate count
-    const election = await ctx.db
-      .query("elections")
-      .withIndex("by_election_id", (q) => q.eq("electionId", student.electionId))
-      .unique();
-
-    if (election) {
-      const candidateCount = await ctx.db
-        .query("electionStudents")
-        .withIndex("by_election", (q) => q.eq("electionId", student.electionId))
-        .filter((q) => q.eq(q.field("isCandidate"), true))
-        .collect();
-
-      await ctx.db.patch(election._id, {
-        candidateCount: candidateCount.length,
-      });
-    }
-
-    return { success: true };
-  },
-});
-
-export const checkStudentEligibility = query({
+export const toggleCandidateStatus = mutation({
   args: {
     electionId: v.string(),
-    phoneNumber: v.string(),
+    rollNumber: v.string(),
   },
   handler: async (ctx, args) => {
-    // Find the election
+    // Check if election allows candidate changes
     const election = await ctx.db
       .query("elections")
       .withIndex("by_election_id", (q) => q.eq("electionId", args.electionId))
       .unique();
-
+    
     if (!election) {
-      return {
-        eligible: false,
-        message: "Election not found",
-        election: null,
-        student: null,
-      };
+      throw new Error("Election not found");
+    }
+    
+    // Prevent changes if election is already started
+    if (election.status === "open" || election.status === "closed") {
+      throw new Error("Cannot modify candidates after election has started");
     }
 
-    // Check if election is open
-    if (election.status !== "open") {
-      return {
-        eligible: false,
-        message: election.status === "created" 
-          ? "Election has not started yet" 
-          : "Election has ended",
-        election,
-        student: null,
-      };
-    }
-
-    // Find the student in this election
     const student = await ctx.db
       .query("electionStudents")
       .withIndex("by_election", (q) => q.eq("electionId", args.electionId))
-      .filter((q) => q.eq(q.field("phone"), args.phoneNumber))
+      .filter((q) => q.eq(q.field("rollNumber"), args.rollNumber))
       .unique();
-
+    
     if (!student) {
-      return {
-        eligible: false,
-        message: "You are not registered for this election",
-        election,
-        student: null,
-      };
+      throw new Error("Student not found");
     }
-
-    return {
-      eligible: true,
-      message: "You are eligible to vote",
-      election,
-      student,
-    };
+    
+    await ctx.db.patch(student._id, {
+      isCandidate: !student.isCandidate,
+    });
+    
+    // Update candidate count in election
+    const candidates = await ctx.db
+      .query("electionStudents")
+      .withIndex("by_election", (q) => q.eq("electionId", args.electionId))
+      .filter((q) => q.eq(q.field("isCandidate"), true))
+      .collect();
+    
+    if (election) {
+      await ctx.db.patch(election._id, {
+        candidateCount: candidates.length,
+      });
+    }
+    
+    return { success: true };
   },
 });
 
@@ -201,30 +194,31 @@ export const startElection = mutation({
       .query("elections")
       .withIndex("by_election_id", (q) => q.eq("electionId", args.electionId))
       .unique();
-
+    
     if (!election) {
       throw new Error("Election not found");
     }
-
+    
     if (election.status !== "created") {
-      throw new Error("Election cannot be started");
+      throw new Error("Election has already been started or ended");
     }
-
+    
     // Check if there are candidates
     const candidates = await ctx.db
       .query("electionStudents")
       .withIndex("by_election", (q) => q.eq("electionId", args.electionId))
       .filter((q) => q.eq(q.field("isCandidate"), true))
       .collect();
-
+    
     if (candidates.length === 0) {
-      throw new Error("Cannot start election without candidates");
+      throw new Error("Cannot start election without any candidates. Please add candidates first.");
     }
-
+    
     await ctx.db.patch(election._id, {
       status: "open",
+      startTime: Date.now(), // Update actual start time
     });
-
+    
     return { success: true };
   },
 });
@@ -236,19 +230,48 @@ export const endElection = mutation({
       .query("elections")
       .withIndex("by_election_id", (q) => q.eq("electionId", args.electionId))
       .unique();
-
+    
     if (!election) {
       throw new Error("Election not found");
     }
-
+    
     if (election.status !== "open") {
       throw new Error("Election is not currently open");
     }
-
+    
     await ctx.db.patch(election._id, {
       status: "closed",
+      endTime: Date.now(),
     });
+    
+    return { success: true };
+  },
+});
 
+export const updateElectionStatus = mutation({
+  args: { electionId: v.string() },
+  handler: async (ctx, args) => {
+    const election = await ctx.db
+      .query("elections")
+      .withIndex("by_election_id", (q) => q.eq("electionId", args.electionId))
+      .unique();
+    
+    if (!election) {
+      return { success: false, message: "Election not found" };
+    }
+    
+    // Only auto-close elections that have passed their end time
+    const now = Date.now();
+    let newStatus = election.status;
+    
+    if (election.status === "open" && election.endTime && now >= election.endTime) {
+      newStatus = "closed";
+    }
+    
+    if (newStatus !== election.status) {
+      await ctx.db.patch(election._id, { status: newStatus });
+    }
+    
     return { success: true };
   },
 });
@@ -256,39 +279,16 @@ export const endElection = mutation({
 export const deleteElection = mutation({
   args: { electionId: v.string() },
   handler: async (ctx, args) => {
-    // Find the election
     const election = await ctx.db
       .query("elections")
       .withIndex("by_election_id", (q) => q.eq("electionId", args.electionId))
       .unique();
-
+    
     if (!election) {
       throw new Error("Election not found");
     }
-
-    // Delete all students in this election
-    const students = await ctx.db
-      .query("electionStudents")
-      .withIndex("by_election", (q) => q.eq("electionId", args.electionId))
-      .collect();
-
-    for (const student of students) {
-      await ctx.db.delete(student._id);
-    }
-
-    // Delete all votes for this election
-    const votes = await ctx.db
-      .query("votes")
-      .withIndex("by_election", (q) => q.eq("electionId", args.electionId))
-      .collect();
-
-    for (const vote of votes) {
-      await ctx.db.delete(vote._id);
-    }
-
-    // Delete the election
+    
     await ctx.db.delete(election._id);
-
     return { success: true };
   },
 });
